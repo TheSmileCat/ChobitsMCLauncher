@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
 
-namespace ChobitsMCLauncher
+namespace ChobitsMCLauncher.ProgramWindows
 {
-    public partial class MainWindow : Window
+    public partial class LauncherWindow : Window
     {
         bool abort = false;
         public void InternetAbort()
@@ -73,6 +73,20 @@ namespace ChobitsMCLauncher
                     processBar.IsIndeterminate = false;
                     processBar.Value = process;
                 }
+            });
+        }
+        public void SetBackgroundWebAddress(string url)
+        {
+            Dispatcher.Invoke(() =>
+            {
+                backGroundWeb.Load(url);
+            });
+        }
+        public void CloseIt()
+        {
+            Dispatcher.Invoke(() =>
+            {
+                Close();
             });
         }
     }

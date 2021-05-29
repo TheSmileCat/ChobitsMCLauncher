@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using ChobitsMCLauncher.ProgramWindows;
 
 namespace ChobitsMCLauncher
 {
@@ -11,16 +12,17 @@ namespace ChobitsMCLauncher
     {
         public static void Main()
         {
-            Thread mainwindow = new Thread(() =>
+            Thread mainUIThread = new Thread(() =>
             {
-                MainWindow.GetMainWindow().Show();
+                LauncherWindow.GetWindow().Show();
+                new BackgroundService().Show();
                 System.Windows.Threading.Dispatcher.Run();
             });
-            mainwindow.SetApartmentState(ApartmentState.STA);
-            mainwindow.Start();
-            while (!MainWindow.HasMainWindow())
+            mainUIThread.SetApartmentState(ApartmentState.STA);
+            mainUIThread.Start();
+            while (!LauncherWindow.HasMainWindow())
             {
-                Thread.Sleep(500);
+                Thread.Sleep(250);
             }
             new Thread(CheckUpdateThread.Run).Start();
         }

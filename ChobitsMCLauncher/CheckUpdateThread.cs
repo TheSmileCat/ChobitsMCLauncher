@@ -8,18 +8,20 @@ using System.Windows;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.IO;
+using ChobitsMCLauncher.ProgramWindows;
 
 namespace ChobitsMCLauncher
 {
     class CheckUpdateThread
     {
-        private static MainWindow mainWindow = null;
+        private static LauncherWindow mainWindow = null;
         private static int redoCount = 0;
         private static List<string> controlFiles;
+        private static string area = null;
         public static void Run()
         {
             redo:
-            mainWindow = MainWindow.GetMainWindow();
+            mainWindow = LauncherWindow.GetWindow();
             controlFiles = new List<string>();
             if (redoCount > 1)
             {
@@ -31,7 +33,18 @@ namespace ChobitsMCLauncher
             }
             //程序启动“块”
             {
-                string s = Tools.HTTP.GetHttpStringData("http://chobitslive.live:81/minecraft/updater/version.json", timeout: 2000);
+                try
+                {
+                    area = JsonConvert.DeserializeObject<string>(File.ReadAllText(AppDomain.CurrentDomain.BaseDirectory + "../area.json"));
+                    if (area == "" || area == null) throw new Exception("找不到area.json配置文件或配置文件异常");
+                }
+                catch (Exception e)
+                {
+                    MessageBox.Show(e.StackTrace, e.Message);
+                    goto launch;
+                }
+                string s = Tools.HTTP.GetHttpStringData("http://chobitslive.live:3080/minecraft/updater/" + area + "/version.json", timeout: 2000);
+                if (s == null) Tools.HTTP.GetHttpStringData("http://chobitslive.live:3080/minecraft/updater/version.json", timeout: 2000);
                 if (s == null)
                 {
                     mainWindow.InternetAbort();
@@ -47,6 +60,7 @@ namespace ChobitsMCLauncher
                         int w = obj.GetValue("width").ToObject<int>();
                         int h = obj.GetValue("height").ToObject<int>();
                         mainWindow.ChangeWindowWH(w, h);
+                        mainWindow.SetBackgroundWebAddress(obj.GetValue("link").ToObject<string>());
                     }
                     catch (Exception e)
                     {
@@ -57,7 +71,7 @@ namespace ChobitsMCLauncher
             while (!mainWindow.GetIsLoaded()) Thread.Sleep(250);
             //游戏更新“块”
             {
-                string control_file_s = Tools.HTTP.GetHttpStringData("http://chobitslive.live:81/minecraft/updater/control.json");
+                string control_file_s = Tools.HTTP.GetHttpStringData("http://chobitslive.live:3080/minecraft/updater/control.json");
                 if (control_file_s != null)
                 {
                     try
@@ -70,11 +84,12 @@ namespace ChobitsMCLauncher
                 }
                 int filed = 0;
                 int done = 0;
-                string foldsRaw = Tools.HTTP.GetHttpStringData("http://chobitslive.live:81/minecraft/updater/3rd/folds.json", timeout: 30000);
+                string foldsRaw = Tools.HTTP.GetHttpStringData("http://chobitslive.live:3080/minecraft/updater/" + area + "/minecraft/folds.json", timeout: 30000);
                 string[] folds = null;
                 if (foldsRaw == null)
                 {
                     mainWindow.InternetAbort();
+                    return;
                 }
                 else
                 {
@@ -94,7 +109,7 @@ namespace ChobitsMCLauncher
                     {
                         string local_path = (AppDomain.CurrentDomain.BaseDirectory + "../.minecraft/" + f).Replace("/", "\\") + "\\";
                         string custom_path = (AppDomain.CurrentDomain.BaseDirectory + "../.customfiles/" + f).Replace("/", "\\") + "\\";
-                        string internet_path = "http://chobitslive.live:81/minecraft/updater/3rd/" + f.Replace("\\", "/") + "/";
+                        string internet_path = "http://chobitslive.live:3080/minecraft/updater/" + area + "/minecraft/" + f.Replace("\\", "/") + "/";
                         string folder_setting = internet_path + "fold.json";
                         try
                         {
@@ -136,7 +151,7 @@ namespace ChobitsMCLauncher
                                             done++;
                                         }
                                     }
-                                    catch
+                                    catch (IOException e)
                                     {
                                         filed++;
                                     }
@@ -227,20 +242,20 @@ namespace ChobitsMCLauncher
                                         }
                                     }
                                 }
-                                UpdateMessage("结束操作……检查文件状态");
-                                if (filed > 0)
-                                {
-                                    if (MessageBox.Show("有" + filed + "和文件操作失败了，你要重试一下吗？", "异常", MessageBoxButton.YesNo, MessageBoxImage.Exclamation) == MessageBoxResult.Yes)
-                                    {
-                                        redoCount++;
-                                        goto redo;
-                                    }
-                                }
                             }
                         }
                         catch (Exception e)
                         {
                             MessageBox.Show(e.StackTrace, e.Message);
+                        }
+                    }
+                    UpdateMessage("结束操作……检查文件状态");
+                    if (filed > 0)
+                    {
+                        if (MessageBox.Show("有" + filed + "和文件操作失败了，你要重试一下吗？", "异常", MessageBoxButton.YesNo, MessageBoxImage.Exclamation) == MessageBoxResult.Yes)
+                        {
+                            redoCount++;
+                            goto redo;
                         }
                     }
                 }
@@ -261,8 +276,8 @@ namespace ChobitsMCLauncher
                 process.StartInfo.Arguments = "-jar Launcher.jar";
                 process.Start();
                 UpdateMessage("正在等待启动器启动...");
-                Thread.Sleep(5000);
-                Environment.Exit(0);
+                Thread.Sleep(3000);
+                LauncherWindow.GetWindow().CloseIt();
             }
         }
         private static void UpdateMessage(string message, double now, double count)

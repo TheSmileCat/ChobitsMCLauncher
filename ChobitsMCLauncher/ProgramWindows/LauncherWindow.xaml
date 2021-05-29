@@ -1,13 +1,14 @@
-﻿<Window x:Class="ChobitsMCLauncher.MainWindow"
+﻿<Window x:Class="ChobitsMCLauncher.ProgramWindows.LauncherWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:ChobitsMCLauncher"
+        xmlns:local="clr-namespace:ChobitsMCLauncher.ProgramWindows"
         xmlns:cef="clr-namespace:CefSharp.Wpf;assembly=CefSharp.Wpf"
         mc:Ignorable="d"
         Loaded="Window_Loaded"
-        Title="MainWindow" Height="450" Width="800" ShowInTaskbar="False" WindowStartupLocation="CenterScreen" AllowsTransparency="True" WindowStyle="None" Background="{x:Null}">
+        Closed="Window_Closed"
+        Title="LauncherWindow" Height="450" Width="800" ShowInTaskbar="False" WindowStartupLocation="CenterScreen" AllowsTransparency="True" WindowStyle="None" Background="{x:Null}" Icon="/ChobitsMCLauncher;component/icon.ico">
     <Grid Name="mainGrid">
         <Grid x:Name="networkErrorGrid" Visibility="Hidden">
             <Grid.RowDefinitions>
@@ -18,14 +19,14 @@
                 <ColumnDefinition Width="61*"/>
                 <ColumnDefinition Width="99*"/>
             </Grid.ColumnDefinitions>
-            <Image Source="ninico_cry.png" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="0,0,0,64" Grid.ColumnSpan="2" Height="386" Width="386" Grid.RowSpan="2"/>
+            <Image Source="/ChobitsMCLauncher;component/ninico_cry.png" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="0,0,0,64" Grid.ColumnSpan="2" Height="386" Width="386" Grid.RowSpan="2"/>
             <Label Content="网络错误……&#13;悲痛欲绝……没法愉快地游戏了……" Grid.Column="1" HorizontalAlignment="Left" VerticalAlignment="Top" FontSize="26" Grid.Row="1" Background="{x:Null}" Foreground="#FFACDDFF" FontFamily="黑体" Height="69" Width="426">
                 <Label.Effect>
                     <DropShadowEffect Color="Black" ShadowDepth="2"/>
                 </Label.Effect>
             </Label>
         </Grid>
-        <cef:ChromiumWebBrowser x:Name="backGroundWeb" Address="http://chobitslive.live:81/minecraft/updater"></cef:ChromiumWebBrowser>
+        <cef:ChromiumWebBrowser x:Name="backGroundWeb" Address=""></cef:ChromiumWebBrowser>
         <Grid Height="60" VerticalAlignment="Bottom" Background="#7FFFFFFF">
             <Grid>
                 <Grid.ColumnDefinitions>

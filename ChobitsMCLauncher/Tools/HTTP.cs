@@ -5,18 +5,19 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
+using ChobitsMCLauncher.ProgramWindows;
 
 namespace ChobitsMCLauncher.Tools
 {
     class HTTP
     {
-        private static MainWindow _mainWindow = null;
+        private static LauncherWindow _mainWindow = null;
         private static long lastUpdate = 0;
-        private static MainWindow mainWindow
+        private static LauncherWindow mainWindow
         {
             get
             {
-                return _mainWindow == null ? _mainWindow = MainWindow.GetMainWindow() : _mainWindow;
+                return _mainWindow == null ? _mainWindow = LauncherWindow.GetWindow() : _mainWindow;
             }
         }
         private static ulong dataStatistics = 0;

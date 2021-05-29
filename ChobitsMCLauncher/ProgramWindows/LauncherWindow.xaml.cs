@@ -14,19 +14,19 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace ChobitsMCLauncher
+namespace ChobitsMCLauncher.ProgramWindows
 {
     /// <summary>
-    /// MainWindow.xaml 的交互逻辑
+    /// LauncherWindow.xaml 的交互逻辑
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class LauncherWindow : Window
     {
-        private static MainWindow instance = null;
-        private MainWindow()
+        private static LauncherWindow instance = null;
+        private LauncherWindow()
         {
             InitializeComponent();
         }
-        public static MainWindow GetMainWindow() { return instance == null ? (instance = new MainWindow()) : instance; }
+        public static LauncherWindow GetWindow() { return instance == null ? (instance = new LauncherWindow()) : instance; }
 
 
         private void Button_MouseEnter(object sender, MouseEventArgs e)
@@ -121,6 +121,11 @@ namespace ChobitsMCLauncher
                 //speedLable.Content = "" + nowIS;
             };
             internetSpeedTimer.Start();
+        }
+
+        private void Window_Closed(object sender, EventArgs e)
+        {
+            instance = null;
         }
     }
 }
