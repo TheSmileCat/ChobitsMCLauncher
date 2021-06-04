@@ -9,6 +9,8 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.IO;
 using ChobitsMCLauncher.ProgramWindows;
+using System.Text.RegularExpressions;
+using System.IO.Compression;
 
 namespace ChobitsMCLauncher
 {
@@ -69,6 +71,38 @@ namespace ChobitsMCLauncher
                 }
             }
             while (!mainWindow.GetIsLoaded()) Thread.Sleep(250);
+            {
+                string local_path = AppDomain.CurrentDomain.BaseDirectory + "..\\.java\\";
+                if (File.Exists(local_path + "bin\\java.exe")) goto pass;
+                Directory.Delete(local_path, true);
+                Directory.CreateDirectory(local_path);
+                try
+                {
+                    string tuna_path = "https://mirrors.tuna.tsinghua.edu.cn/AdoptOpenJDK/16/jre/x64/windows/";
+                    string javas = Tools.HTTP.GetHttpStringData(tuna_path);
+                    Regex regex = new Regex("\\<a\\shref=\"(?<path>.*)\"\\stitle=\".*hotspot.*\\.zip\"\\>");
+                    Match match = regex.Match(javas);
+                    if (!match.Success) goto pass;
+                    string filename = match.Groups["path"].ToString();
+                    string remote_path = tuna_path + filename;
+                    while (!Tools.HTTP.HttpDownload(tuna_path + filename, local_path + filename))
+                    {
+                        if (MessageBox.Show("Java下载失败了，你要重试吗？\r\n" + local_path + filename, "错误", MessageBoxButton.YesNo) == MessageBoxResult.No) goto pass;
+                    }
+                    var zip = ZipFile.Open(local_path + filename, ZipArchiveMode.Read);
+                    var temp_dir_name = local_path + filename.Remove(filename.LastIndexOf("."));
+                    zip.ExtractToDirectory(temp_dir_name);
+                    zip.Dispose();
+                    File.Delete(local_path + filename);
+                    Tools.FileContorl.CopyDir(Directory.EnumerateDirectories(temp_dir_name).ToArray()[0], local_path);
+                    Directory.Delete(temp_dir_name, true);
+                }
+                catch (Exception e)
+                {
+                    MessageBox.Show(e.StackTrace, e.Message);
+                }
+                pass:;
+            }
             //游戏更新“块”
             {
                 string control_file_s = Tools.HTTP.GetHttpStringData("http://chobitslive.live:3080/minecraft/updater/control.json");

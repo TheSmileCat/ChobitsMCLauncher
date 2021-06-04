@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ChobitsMCLauncher.ProgramWindows.Client;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -21,7 +22,7 @@ namespace ChobitsMCLauncher.ProgramWindows
         bool toClose = false;
         private void BackgroundService_Load(object sender, EventArgs e)
         {
-            Hide();
+            //Hide();
         }
         private void BackgroundService_Closing(object sender, FormClosingEventArgs e)
         {
@@ -65,6 +66,19 @@ namespace ChobitsMCLauncher.ProgramWindows
         {
             programMainIcon.Visible = false;
             Environment.Exit(0);
+        }
+        protected override void DefWndProc(ref Message m)
+        {
+            switch (m.Msg)
+            {
+                case 0xffff:
+                    ClientMainWindow.GetWindow().Show();
+                    ClientMainWindow.GetWindow().Activate();
+                    break;
+                default:
+                    base.DefWndProc(ref m);
+                    break;
+            }
         }
     }
 }

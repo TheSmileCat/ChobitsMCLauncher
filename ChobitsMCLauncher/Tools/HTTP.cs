@@ -40,20 +40,27 @@ namespace ChobitsMCLauncher.Tools
             {
                 File.Delete(tempFile);    //存在则删除
             }
+            FileStream fs = null;
+            int retry = 0;
+            long lastpos = 0;
+            long length = -1;
+            ulong sum = 0;
+            redo:
             try
             {
-                FileStream fs = new FileStream(tempFile, FileMode.Append, FileAccess.Write, FileShare.ReadWrite);
+                fs = new FileStream(tempFile, FileMode.Append, FileAccess.Write, FileShare.ReadWrite);
                 //设置参数
                 HttpWebRequest request = WebRequest.Create(url) as HttpWebRequest;
-                long length = request.ContentLength;
+                request.AddRange(fs.Length);
                 //发送请求并获取相应回应数据
                 HttpWebResponse response = request.GetResponse() as HttpWebResponse;
                 //直到request.GetResponse()程序才开始向目标网页发送Post请求
                 //response.ContentLength
                 Stream responseStream = response.GetResponseStream();
+                responseStream.ReadTimeout = 10000;
+                if (length == -1) length = response.ContentLength;
                 //创建本地文件写入流
                 //Stream stream = new FileStream(tempFile, FileMode.Create);
-                ulong sum = 0;
                 byte[] bArr = new byte[1024];
                 int size = responseStream.Read(bArr, 0, bArr.Length);
                 dataStatistics += (ulong)size;
@@ -76,9 +83,17 @@ namespace ChobitsMCLauncher.Tools
                 File.Move(tempFile, path);
                 return true;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return false;
+                if (lastpos == fs.Length) retry++;
+                else retry = 0;
+                lastpos = fs.Length;
+                if (retry > 3) return false;
+                else goto redo;
+            }
+            finally
+            {
+                if (fs != null) fs.Close();
             }
         }
         public static void GetHttpData(HttpReqRawReturn dataReturn, string path, int? timeout = null)

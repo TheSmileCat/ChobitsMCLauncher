@@ -53,7 +53,7 @@ namespace ChobitsMCLauncher.ProgramWindows
             {
                 case "Restart":
                     instance = null;
-                    Program.Main();
+                    System.Windows.Forms.Application.Restart();
                     Close();
                     break;
             }
