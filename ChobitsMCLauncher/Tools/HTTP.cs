@@ -5,26 +5,33 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
-using ChobitsMCLauncher.ProgramWindows;
 
 namespace ChobitsMCLauncher.Tools
 {
     class HTTP
     {
-        private static LauncherWindow _mainWindow = null;
-        private static long lastUpdate = 0;
-        private static LauncherWindow mainWindow
+        private HTTP(string url, string path, int pr_now = -1, int pr_count = -1)
         {
-            get
-            {
-                return _mainWindow == null ? _mainWindow = LauncherWindow.GetWindow() : _mainWindow;
-            }
+            this.url = url;
+            this.path = path;
+            this.pr_count = pr_count;
+            this.pr_now = pr_now;
         }
+        private int pr_now = -1;
+        private int pr_count = -1;
+        private string url, path;
+        private static long lastUpdate = 0;
         private static ulong dataStatistics = 0;
         public static ulong GetDataStatistics()
         {
             return dataStatistics;
         }
+
+        public static HTTP CreateHTTPDownLoad(string url, string path, int pr_now = -1, int pr_count = -1)
+        {
+            return new HTTP(url, path, pr_now, pr_count);
+        }
+
         /// <summary>
         /// http下载文件
         /// </summary>
@@ -33,13 +40,19 @@ namespace ChobitsMCLauncher.Tools
         /// <returns></returns>
         public static bool HttpDownload(string url, string path, int pr_now = -1, int pr_count = -1)
         {
+            HTTP http = new HTTP(url, path, pr_now, pr_count);
+            return http.Download();
+        }
+        /// <summary>
+        /// 开始下载文件
+        /// </summary>
+        /// <returns>下载是否成功</returns>
+        public bool Download()
+        {
             string tempPath = Path.GetDirectoryName(path);// + @"\temp";
-                                                          //Directory.CreateDirectory(tempPath);  //创建临时文件目录
+            if(!Directory.Exists(tempPath)) Directory.CreateDirectory(tempPath);  //创建临时文件目录
             string tempFile = tempPath + @"\" + Path.GetFileName(path) + ".temp"; //临时文件
-            if (File.Exists(tempFile))
-            {
-                File.Delete(tempFile);    //存在则删除
-            }
+            if (File.Exists(tempFile)) File.Delete(tempFile);
             FileStream fs = null;
             int retry = 0;
             long lastpos = 0;
@@ -57,7 +70,7 @@ namespace ChobitsMCLauncher.Tools
                 //直到request.GetResponse()程序才开始向目标网页发送Post请求
                 //response.ContentLength
                 Stream responseStream = response.GetResponseStream();
-                responseStream.ReadTimeout = 10000;
+                responseStream.ReadTimeout = 5000;
                 if (length == -1) length = response.ContentLength;
                 //创建本地文件写入流
                 //Stream stream = new FileStream(tempFile, FileMode.Create);
@@ -83,7 +96,7 @@ namespace ChobitsMCLauncher.Tools
                 File.Move(tempFile, path);
                 return true;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 if (lastpos == fs.Length) retry++;
                 else retry = 0;
@@ -96,6 +109,7 @@ namespace ChobitsMCLauncher.Tools
                 if (fs != null) fs.Close();
             }
         }
+        public delegate void HttpReqRawReturn(byte[] data);
         public static void GetHttpData(HttpReqRawReturn dataReturn, string path, int? timeout = null)
         {
             HttpWebRequest request = WebRequest.Create(path) as HttpWebRequest;
@@ -117,10 +131,24 @@ namespace ChobitsMCLauncher.Tools
             responseStream.Close();
             dataReturn(data.ToArray());
         }
+        /// <summary>
+        /// 从网络下载一段文本
+        /// </summary>
+        /// <param name="path">地址</param>
+        /// <param name="encode">编码</param>
+        /// <param name="timeout">超时时间</param>
+        /// <returns>下载得到的文本</returns>
         public static string GetHttpStringData(string path, Encoding encode, int? timeout = null)
         {
             return GetHttpStringData(path, encode.WebName, timeout);
         }
+        /// <summary>
+        /// 从网络下载一段文本
+        /// </summary>
+        /// <param name="path">地址</param>
+        /// <param name="encodeName">编码的名称</param>
+        /// <param name="timeout">超时时间</param>
+        /// <returns>下载得到的文本，下载失败将返回Null</returns>
         public static string GetHttpStringData(string path, string encodeName = "UTF-8", int? timeout = null)
         {
             string s = null;
@@ -143,34 +171,37 @@ namespace ChobitsMCLauncher.Tools
             }
             return s;
         }
-        public delegate void HttpReqRawReturn(byte[] data);
-        private static void UpdateSizeMessage(string message, ulong now, ulong count)
+        private void UpdateSizeMessage(string message, ulong now, ulong count)
         {
             if (count == 0) UpdateMessage(string.Format(message, "已接收:" + toMemorySizeString(now)));
-            else UpdateMessage(string.Format(message, "(" + toMemorySizeString(now) + " / " + toMemorySizeString(count)) + ")", now * 1000 / count, 1000, true);
+            else UpdateMessage(string.Format(message, "(" + toMemorySizeString(now) + " / " + toMemorySizeString(count) + ")"), now * 1000 / count, 1000, true);
         }
-        private static void UpdateMessage(string message, double now, double count, bool custom = false)
+        private void UpdateMessage(string message, double now, double count, bool custom = false)
         {
+            if (onHttpDownloadMessage == null) return;
             long nowTicks = DateTime.Now.Ticks;
             if (nowTicks - lastUpdate > 1000000) lastUpdate = nowTicks; //100 * 10000
             else return;
+            double process = now / count;
+            string messageE = message;
             if (now < 0 || count < 0)
             {
-                mainWindow.UpdateStatus(message, -1);
+                onHttpDownloadMessage(this, new HttpDownloadEventArgs(messageE));
                 return;
             }
             bool a = message.Contains("{0}");
             bool b = message.Contains("{1}");
-            if (custom) mainWindow.UpdateStatus(message, now / count);
-            else if (a && b) mainWindow.UpdateStatus(string.Format(message, Math.Round(now, 2), Math.Round(count, 2)), now / count);
-            else if (a) mainWindow.UpdateStatus(string.Format(message, "(" + Math.Round(now, 2) + " / " + Math.Round(count, 2) + ")"), now / count);
-            else mainWindow.UpdateStatus(message + " (" + Math.Round(now, 2) + " / " + Math.Round(count, 2) + ")", now / count);
+            if (custom) messageE = message;
+            else if (a && b) message = string.Format(message, Math.Round(now, 2), Math.Round(count, 2));
+            else if (a) message = string.Format(message, "(" + Math.Round(now, 2) + " / " + Math.Round(count, 2) + ")");
+            else messageE = message + " (" + Math.Round(now, 2) + " / " + Math.Round(count, 2) + ")";
+            onHttpDownloadMessage(this, new HttpDownloadEventArgs(messageE, process));
         }
-        private static void UpdateMessage(string message)
+        private void UpdateMessage(string message)
         {
             UpdateMessage(message, -1, -1);
         }
-        public static string toMemorySizeString(int number)
+        public string toMemorySizeString(int number)
         {
             return toMemorySizeString((ulong)number);
         }
@@ -186,6 +217,22 @@ namespace ChobitsMCLauncher.Tools
             else if (number < 1073741824) s = (double)(number * 10 / 1048576) / 10 + "Mb";    //1024^3=1073741824
             else s = (double)(number * 10 / 1073741824) / 10 + "Gb";
             return s;
+        }
+
+        public event EventHandler<HttpDownloadEventArgs> onHttpDownloadMessage;
+        public class HttpDownloadEventArgs : EventArgs
+        {
+            //HTTP下载过程中产生的的消息
+            public string message { get; private set; }
+            /// <summary>
+            /// 进度，当无法显示进度时，此值为-1
+            /// </summary>
+            public double process { get; protected set; }
+            public HttpDownloadEventArgs(string message, double process = -1)
+            {
+                this.message = message;
+                this.process = process;
+            }
         }
     }
 }

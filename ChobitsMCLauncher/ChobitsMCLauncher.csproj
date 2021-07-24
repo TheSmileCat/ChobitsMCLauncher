@@ -1,5 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\packages\EntityFramework.6.4.4\build\EntityFramework.props" Condition="Exists('..\packages\EntityFramework.6.4.4\build\EntityFramework.props')" />
   <Import Project="..\packages\CefSharp.Common.90.6.70\build\CefSharp.Common.props" Condition="Exists('..\packages\CefSharp.Common.90.6.70\build\CefSharp.Common.props')" />
   <Import Project="..\packages\cef.redist.x86.90.6.7\build\cef.redist.x86.props" Condition="Exists('..\packages\cef.redist.x86.90.6.7\build\cef.redist.x86.props')" />
   <Import Project="..\packages\cef.redist.x64.90.6.7\build\cef.redist.x64.props" Condition="Exists('..\packages\cef.redist.x64.90.6.7\build\cef.redist.x64.props')" />
@@ -78,7 +79,7 @@
     <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup>
-    <ApplicationIcon>icon.ico</ApplicationIcon>
+    <ApplicationIcon>Resources\icon.ico</ApplicationIcon>
   </PropertyGroup>
   <PropertyGroup>
     <StartupObject>ChobitsMCLauncher.App</StartupObject>
@@ -99,10 +100,33 @@
     <SignAssembly>false</SignAssembly>
   </PropertyGroup>
   <PropertyGroup>
-    <TargetZone>LocalIntranet</TargetZone>
+    <TargetZone>Custom</TargetZone>
   </PropertyGroup>
   <PropertyGroup>
     <ApplicationManifest>Properties\app.manifest</ApplicationManifest>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x86\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <LangVersion>7.3</LangVersion>
+    <ErrorReport>prompt</ErrorReport>
+    <Prefer32Bit>true</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
+    <OutputPath>bin\x86\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>none</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <LangVersion>7.3</LangVersion>
+    <ErrorReport>prompt</ErrorReport>
+    <Prefer32Bit>true</Prefer32Bit>
+    <DebugSymbols>false</DebugSymbols>
+    <DocumentationFile>
+    </DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="CefSharp, Version=90.6.70.0, Culture=neutral, PublicKeyToken=40c4b6fc221f4138, processorArchitecture=MSIL">
@@ -114,6 +138,12 @@
     <Reference Include="CefSharp.Wpf, Version=90.6.70.0, Culture=neutral, PublicKeyToken=40c4b6fc221f4138, processorArchitecture=MSIL">
       <HintPath>..\packages\CefSharp.Wpf.90.6.70\lib\net452\CefSharp.Wpf.dll</HintPath>
     </Reference>
+    <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\packages\EntityFramework.6.4.4\lib\net45\EntityFramework.dll</HintPath>
+    </Reference>
+    <Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\packages\EntityFramework.6.4.4\lib\net45\EntityFramework.SqlServer.dll</HintPath>
+    </Reference>
     <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.13.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
@@ -121,7 +151,17 @@
       <HintPath>..\packages\Panuon.UI.Silver.1.1.3.4\lib\net45\Panuon.UI.Silver.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Data.SQLite, Version=1.0.114.0, Culture=neutral, PublicKeyToken=db937bc2d44ff139, processorArchitecture=MSIL">
+      <HintPath>..\packages\Stub.System.Data.SQLite.Core.NetFramework.1.0.114.0\lib\net46\System.Data.SQLite.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Data.SQLite.EF6, Version=1.0.114.0, Culture=neutral, PublicKeyToken=db937bc2d44ff139, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Data.SQLite.EF6.1.0.114.0\lib\net46\System.Data.SQLite.EF6.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Data.SQLite.Linq, Version=1.0.114.0, Culture=neutral, PublicKeyToken=db937bc2d44ff139, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Data.SQLite.Linq.1.0.114.0\lib\net46\System.Data.SQLite.Linq.dll</HintPath>
+    </Reference>
     <Reference Include="System.Drawing" />
     <Reference Include="System.IO.Compression" />
     <Reference Include="System.IO.Compression.FileSystem" />
@@ -152,23 +192,40 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
-    <Compile Include="CheckUpdateThread.cs" />
+    <Compile Include="Config\hmcl.json.cs" />
     <Compile Include="ProgramWindows\BackgroundService.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="ProgramWindows\BackgroundService.Designer.cs">
       <DependentUpon>BackgroundService.cs</DependentUpon>
     </Compile>
+    <Compile Include="ProgramWindows\Client\ClientMainWindowExchange.cs" />
     <Compile Include="ProgramWindows\Client\ClientMainWindow.xaml.cs">
       <DependentUpon>ClientMainWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="ProgramWindows\Client\Pages\Server1.xaml.cs">
       <DependentUpon>Server1.xaml</DependentUpon>
     </Compile>
-    <Compile Include="ProgramWindows\LauncherWindowExchange.cs" />
+    <Compile Include="ProgramWindows\Client\Setting.xaml.cs">
+      <DependentUpon>Setting.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="ProgramWindows\Client\UserControls\DataForm.xaml.cs">
+      <DependentUpon>DataForm.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="ProgramWindows\Client\UserControls\LoginPanel.xaml.cs">
+      <DependentUpon>LoginPanel.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="SQL\DataBase.cs" />
+    <Compile Include="Tools\CheckUpdate\IUpdateMessagable.cs" />
+    <Compile Include="Tools\CheckUpdate\PreLaunch.cs" />
+    <Compile Include="Tools\CheckUpdate\ProgramEnvironmentCheck.cs" />
+    <Compile Include="Tools\CheckUpdate\Updater.cs" />
+    <Compile Include="Tools\CheckUpdate\UpdaterEvent.cs" />
     <Compile Include="Tools\ConsoleManager.cs" />
     <Compile Include="Tools\FileContorl.cs" />
+    <Compile Include="Tools\GameLauncher.cs" />
     <Compile Include="Tools\Md5.cs" />
+    <Compile Include="Version.cs" />
     <Page Include="ProgramWindows\Client\ClientMainWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -177,15 +234,19 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="ProgramWindows\LauncherWindow.xaml">
-      <Generator>MSBuild:Compile</Generator>
+    <Page Include="ProgramWindows\Client\Setting.xaml">
       <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="ProgramWindows\Client\UserControls\DataForm.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="ProgramWindows\Client\UserControls\LoginPanel.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Compile Include="Tools\HTTP.cs" />
-    <Compile Include="ProgramWindows\LauncherWindow.xaml.cs">
-      <DependentUpon>LauncherWindow.xaml</DependentUpon>
-      <SubType>Code</SubType>
-    </Compile>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs">
@@ -211,7 +272,12 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-    <None Include="packages.config" />
+    <EmbeddedResource Include="packages.config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <None Include=".pubversion">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="Properties\app.manifest" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
@@ -222,7 +288,7 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="icon.ico" />
+    <Resource Include="Resources\icon.ico" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.7.2">
@@ -237,7 +303,21 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="ninico_cry.png" />
+    <Resource Include="Resources\ninico_cry.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="UpdateVersion.py" />
+  </ItemGroup>
+  <ItemGroup>
+    <COMReference Include="IWshRuntimeLibrary">
+      <Guid>{F935DC20-1CF0-11D0-ADB9-00C04FD58A0B}</Guid>
+      <VersionMajor>1</VersionMajor>
+      <VersionMinor>0</VersionMinor>
+      <Lcid>0</Lcid>
+      <WrapperTool>tlbimp</WrapperTool>
+      <Isolated>False</Isolated>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </COMReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
@@ -248,6 +328,37 @@
     <Error Condition="!Exists('..\packages\cef.redist.x86.90.6.7\build\cef.redist.x86.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\cef.redist.x86.90.6.7\build\cef.redist.x86.props'))" />
     <Error Condition="!Exists('..\packages\CefSharp.Common.90.6.70\build\CefSharp.Common.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\CefSharp.Common.90.6.70\build\CefSharp.Common.props'))" />
     <Error Condition="!Exists('..\packages\CefSharp.Common.90.6.70\build\CefSharp.Common.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\CefSharp.Common.90.6.70\build\CefSharp.Common.targets'))" />
+    <Error Condition="!Exists('..\packages\EntityFramework.6.4.4\build\EntityFramework.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\EntityFramework.6.4.4\build\EntityFramework.props'))" />
+    <Error Condition="!Exists('..\packages\EntityFramework.6.4.4\build\EntityFramework.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\EntityFramework.6.4.4\build\EntityFramework.targets'))" />
+    <Error Condition="!Exists('..\packages\Stub.System.Data.SQLite.Core.NetFramework.1.0.114.0\build\net46\Stub.System.Data.SQLite.Core.NetFramework.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Stub.System.Data.SQLite.Core.NetFramework.1.0.114.0\build\net46\Stub.System.Data.SQLite.Core.NetFramework.targets'))" />
   </Target>
   <Import Project="..\packages\CefSharp.Common.90.6.70\build\CefSharp.Common.targets" Condition="Exists('..\packages\CefSharp.Common.90.6.70\build\CefSharp.Common.targets')" />
+  <PropertyGroup>
+    <PostBuildEvent>@echo off
+if "$(ConfigurationName)" == "Release" (echo 删除文件) else (exit)
+cd $(TargetDir)
+del /Q /S *.pdb
+del /Q /S *.xml
+del /Q /S *.txt
+del /Q /S *.manifest
+del /Q /S *.application
+del /Q /S *.config
+del /Q /S $(TargetDir)app.publish
+rename "$(TargetDir)locales\zh-CN.pak" a
+rename "$(TargetDir)locales\zh-TW.pak" b
+rename "$(TargetDir)locales\en-US.pak" c
+rename "$(TargetDir)locales\ja.pak" d
+del /Q /S locales\*.pak
+rename "$(TargetDir)locales\a" zh-CN.pak
+rename "$(TargetDir)locales\b" zh-TW.pak
+rename "$(TargetDir)locales\c" en-US.pak
+rename "$(TargetDir)locales\d" ja.pak</PostBuildEvent>
+  </PropertyGroup>
+  <PropertyGroup>
+    <PreBuildEvent>@echo off
+cd $(ProjectDir)
+python "$(ProjectDir)UpdateVersion.py"</PreBuildEvent>
+  </PropertyGroup>
+  <Import Project="..\packages\EntityFramework.6.4.4\build\EntityFramework.targets" Condition="Exists('..\packages\EntityFramework.6.4.4\build\EntityFramework.targets')" />
+  <Import Project="..\packages\Stub.System.Data.SQLite.Core.NetFramework.1.0.114.0\build\net46\Stub.System.Data.SQLite.Core.NetFramework.targets" Condition="Exists('..\packages\Stub.System.Data.SQLite.Core.NetFramework.1.0.114.0\build\net46\Stub.System.Data.SQLite.Core.NetFramework.targets')" />
 </Project>

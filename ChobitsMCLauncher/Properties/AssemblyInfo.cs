@@ -7,12 +7,12 @@ using System.Windows;
 // 有关程序集的一般信息由以下
 // 控制。更改这些特性值可修改
 // 与程序集关联的信息。
-[assembly: AssemblyTitle("ChobitsMCLauncher")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyTitle("ChobitsLive Minecraft 客户端应用程序")]
+[assembly: AssemblyDescription("ChobitsLive社团的我的世界服务器客户端应用程序，为玩家提供基础服务")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
+[assembly: AssemblyCompany("国際動漫協会株式会社(日本)，泰安轩木时空动漫游戏工作室(不存在)")]
 [assembly: AssemblyProduct("ChobitsMCLauncher")]
-[assembly: AssemblyCopyright("Copyright ©  2021")]
+[assembly: AssemblyCopyright("Copyright ©  2021 @一七年夏（bilibili）")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -53,3 +53,5 @@ using System.Windows;
 // [assembly: AssemblyVersion("1.0.*")]
 [assembly: AssemblyVersion("1.0.0.0")]
 [assembly: AssemblyFileVersion("1.0.0.0")]
+[assembly: Guid("dfeb62a8-14bc-37dc-add2-a201aa536227")]
+[assembly: NeutralResourcesLanguage("zh-CN")]

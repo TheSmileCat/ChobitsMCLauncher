@@ -36,6 +36,7 @@ namespace ChobitsMCLauncher.ProgramWindows
             this.openToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.settingToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.programMainIconMenu.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -43,11 +44,13 @@ namespace ChobitsMCLauncher.ProgramWindows
             // 
             this.programMainIcon.ContextMenuStrip = this.programMainIconMenu;
             resources.ApplyResources(this.programMainIcon, "programMainIcon");
+            this.programMainIcon.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.programMainIcon_MouseDoubleClick);
             // 
             // programMainIconMenu
             // 
             this.programMainIconMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.openToolStripMenuItem,
+            this.settingToolStripMenuItem,
             this.toolStripSeparator1,
             this.exitToolStripMenuItem});
             this.programMainIconMenu.Name = "programMainIconMenu";
@@ -69,6 +72,12 @@ namespace ChobitsMCLauncher.ProgramWindows
             this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
             resources.ApplyResources(this.exitToolStripMenuItem, "exitToolStripMenuItem");
             this.exitToolStripMenuItem.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
+            // 
+            // settingToolStripMenuItem
+            // 
+            this.settingToolStripMenuItem.Name = "settingToolStripMenuItem";
+            resources.ApplyResources(this.settingToolStripMenuItem, "settingToolStripMenuItem");
+            this.settingToolStripMenuItem.Click += new System.EventHandler(this.settingToolStripMenuItem_Click);
             // 
             // BackgroundService
             // 
@@ -92,5 +101,6 @@ namespace ChobitsMCLauncher.ProgramWindows
         private System.Windows.Forms.ToolStripMenuItem openToolStripMenuItem;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
         private System.Windows.Forms.ToolStripMenuItem exitToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem settingToolStripMenuItem;
     }
 }

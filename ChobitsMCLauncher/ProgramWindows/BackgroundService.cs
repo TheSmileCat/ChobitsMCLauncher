@@ -14,7 +14,12 @@ namespace ChobitsMCLauncher.ProgramWindows
     public partial class BackgroundService : Form
     {
         private System.Windows.Threading.Dispatcher Dispatcher = System.Windows.Threading.Dispatcher.CurrentDispatcher;
-        public BackgroundService()
+        public static BackgroundService Service { get; private set; } = new BackgroundService();
+        public static BackgroundService GetService()
+        {
+            return Service ?? (Service = new BackgroundService());
+        }
+        private BackgroundService()
         {
             InitializeComponent();
             Init();
@@ -43,6 +48,25 @@ namespace ChobitsMCLauncher.ProgramWindows
         private void Init()
         {
             programMainIcon.MouseClick += ProgramMainIcon_MouseClick;
+            //programMainIcon.ShowBalloonTip(0, "ChobitsMC综合服务", "应用程序正在启动，请稍候...", ToolTipIcon.Info);
+        }
+        /// <summary>
+        /// 显示一个
+        /// </summary>
+        /// <param name="message"></param>
+        /// <param name="title"></param>
+        /// <param name="icon"></param>
+        public static void ShowBalloonMessage(string message, string title = "ChobitsMC综合服务", ToolTipIcon icon = ToolTipIcon.Info)
+        {
+            Service.ShowMessage(title, message, icon);
+        }
+
+        public void ShowMessage(string message, string title, ToolTipIcon icon)
+        {
+             System.Windows.Threading.Dispatcher.CurrentDispatcher.Invoke(()=>
+             {
+                 programMainIcon.ShowBalloonTip(0, message, title, icon);
+             });
         }
 
         private void ProgramMainIcon_MouseClick(object sender, MouseEventArgs e)
@@ -50,7 +74,7 @@ namespace ChobitsMCLauncher.ProgramWindows
             switch (e.Button)
             {
                 case MouseButtons.Left:
-                    ClientMainWindow window = ClientMainWindow.GetWindow();
+                    ClientMainWindow window = ClientMainWindow.GetWindow(true);
                     window.Show();
                     break;
             }
@@ -58,7 +82,7 @@ namespace ChobitsMCLauncher.ProgramWindows
 
         private void openToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            ClientMainWindow window = ClientMainWindow.GetWindow();
+            ClientMainWindow window = ClientMainWindow.GetWindow(true);
             window.Show();
         }
 
@@ -72,13 +96,23 @@ namespace ChobitsMCLauncher.ProgramWindows
             switch (m.Msg)
             {
                 case 0xffff:
-                    ClientMainWindow.GetWindow().Show();
-                    ClientMainWindow.GetWindow().Activate();
+                    ClientMainWindow.GetWindow(true).Show();
+                    ClientMainWindow.GetWindow(true).Activate();
                     break;
                 default:
                     base.DefWndProc(ref m);
                     break;
             }
+        }
+
+        private void programMainIcon_MouseDoubleClick(object sender, MouseEventArgs e)
+        {
+
+        }
+
+        private void settingToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Setting.GetWindow().Show();
         }
     }
 }
