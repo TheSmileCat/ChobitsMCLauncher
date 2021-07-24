@@ -1,11 +1,14 @@
-﻿using System;
+﻿using IWshRuntimeLibrary;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Security.Principal;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 
 namespace ChobitsMCLauncher.Tools
 {
@@ -112,6 +115,56 @@ namespace ChobitsMCLauncher.Tools
         {
             Console.SetOut(TextWriter.Null);
             Console.SetError(TextWriter.Null);
+        }
+
+        public static bool IsAdministrator
+        {
+            get
+            {
+                WindowsIdentity current = WindowsIdentity.GetCurrent();
+                WindowsPrincipal windowsPrincipal = new WindowsPrincipal(current);
+                return windowsPrincipal.IsInRole(WindowsBuiltInRole.Administrator);
+            }
+        }
+
+        public static void RestartAsAdministrator(bool needConfirm = false)
+        {
+            if(needConfirm == true) MessageBox.Show("即将以管理员权限启动，\n请在重启后再次尝试刚刚的操作", "提示", MessageBoxButton.OK, MessageBoxImage.Information);
+            ProcessStartInfo myStartInfo = new ProcessStartInfo();
+            myStartInfo.Verb = "runas";
+            myStartInfo.FileName = Process.GetCurrentProcess().MainModule.FileName;
+            Process.Start(myStartInfo);
+            Environment.Exit(0);
+        }
+
+        public static void CreateShortcutOnDesktop()
+        {
+            //添加引用 (com->Windows Script Host Object Model)，using IWshRuntimeLibrary;
+            string shortcutPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory), "ChobitsLive Minecraft.lnk");
+            if (!System.IO.File.Exists(shortcutPath))
+            {
+                // 获取当前应用程序目录地址
+                string exePath = Process.GetCurrentProcess().MainModule.FileName;
+                IWshShell shell = new WshShell();
+                // 确定是否已经创建的快捷键被改名了
+                foreach (var item in Directory.GetFiles(Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory), "*.lnk"))
+                {
+                    WshShortcut tempShortcut = (WshShortcut)shell.CreateShortcut(item);
+                    if (tempShortcut.TargetPath == exePath)
+                    {
+                        return;
+                    }
+                }
+                WshShortcut shortcut = (WshShortcut)shell.CreateShortcut(shortcutPath);
+                shortcut.TargetPath = exePath;
+                shortcut.Arguments = "";// 参数  
+                shortcut.Description = "ChobitsLive社团MC服务器客户端";
+                shortcut.WorkingDirectory = Environment.CurrentDirectory;//程序所在文件夹，在快捷方式图标点击右键可以看到此属性  
+                shortcut.IconLocation = exePath;//图标，该图标是应用程序的资源文件  
+                //shortcut.Hotkey = "CTRL+SHIFT+W";//热键，发现没作用，大概需要注册一下  
+                shortcut.WindowStyle = 1;
+                shortcut.Save();
+            }
         }
     }
 }

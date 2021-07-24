@@ -4,16 +4,35 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ChobitsMCLauncher.ProgramWindows.Client"
+        xmlns:us="clr-namespace:ChobitsMCLauncher.ProgramWindows.Client.UserControls"
         xmlns:cef="clr-namespace:CefSharp.Wpf;assembly=CefSharp.Wpf"
         xmlns:pu="clr-namespace:Panuon.UI.Silver;assembly=Panuon.UI.Silver"
         mc:Ignorable="d"
-        Closed="Window_Closed"
+        Closed="Window_Closed" Loaded="Window_Loaded"
         Title="ChobitsLive Minecraft Official Server - Control Window" 
         Height="768" Width="1366" WindowStartupLocation="CenterScreen" 
         WindowStyle="None" AllowsTransparency="True">
+    <Window.Resources>
+        <SolidColorBrush x:Key="ThemeForeColor" Color="#FF57C357"/>
+        <!--#FF57C357-->
+        <!--#FFF55555 党主题色-->
+        <FontFamily x:Key="IconFontAwesome">/Panuon.UI.Silver;component/Resources/#fontawesome</FontFamily>
+        <Style TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+            <Setter Property="Background" Value="{DynamicResource ThemeForeColor}"></Setter>
+            <Setter Property="pu:ButtonHelper.HoverBrush" Value="#FF3A853A"></Setter>
+            <!--#FF3A853A-->
+            <!--#FFC10000 党主题色-->
+            <Setter Property="Foreground" Value="White"></Setter>
+        </Style>
+        <Style TargetType="CheckBox" BasedOn="{StaticResource {x:Type CheckBox}}">
+            <Setter Property="pu:CheckBoxHelper.CheckBoxStyle" Value="Switch"></Setter>
+            <Setter Property="pu:CheckBoxHelper.CheckedBackground" Value="{DynamicResource ThemeForeColor}"></Setter>
+            <Setter Property="pu:CheckBoxHelper.BoxWidth" Value="50"></Setter>
+        </Style>
+    </Window.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="300"/>
+            <ColumnDefinition Width="300" x:Name="grid_userSelectBox"/>
             <ColumnDefinition/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
@@ -23,15 +42,24 @@
         <Grid.Background>
             <LinearGradientBrush EndPoint="0,1" MappingMode="RelativeToBoundingBox" StartPoint="1,0">
                 <GradientStop Color="#FFB0B0B0" Offset="1"/>
+                <!--#FFB0B0B0-->
+                <!--#FFF59A9A 党主题色-->
                 <GradientStop Color="#FF507850"/>
+                <!--#FF507850-->
+                <!--#FFF1A02A 党主题色-->
             </LinearGradientBrush>
         </Grid.Background>
+        <!--#region 标题栏-->
         <Grid Grid.Row="0" Grid.ColumnSpan="2">
             <DockPanel MouseDown="Moving" PreviewMouseUp="WindowTitle_MouseUp">
                 <DockPanel.Background>
                     <LinearGradientBrush EndPoint="1,0.5" StartPoint="0,0.5">
                         <GradientStop Color="#FF839C83"/>
+                        <!--#FF839C83-->
+                        <!--#FFFFA280 党主题色-->
                         <GradientStop Color="#FF74A7D1" Offset="1"/>
+                        <!--#FF74A7D1-->
+                        <!--#FFC10F0F 党主题色-->
                     </LinearGradientBrush>
                 </DockPanel.Background>
                 <Canvas FlowDirection="RightToLeft" DockPanel.Dock="Right" Width="130">
@@ -63,21 +91,19 @@
                         <Label Content="◈"/>
                     </Border>
                 </Canvas>
-                <Image DockPanel.Dock="Left" Width="24" Source="/ChobitsMCLauncher;component/icon.ico" Height="24" Margin="3,0,0,0" ></Image>
+                <Image DockPanel.Dock="Left" Width="24" Source="/ChobitsMCLauncher;component/Resources/icon.ico" Height="24" Margin="3,0,0,0" ></Image>
                 <Label Name="SyncTitle" Foreground="White" Content="ChobitsLive Minecraft Official Server - Control Window" VerticalContentAlignment="Center"/>
             </DockPanel>
         </Grid>
+        <!--#endregion-->
         <Grid Grid.Row="1">
             <Grid.RowDefinitions>
                 <RowDefinition></RowDefinition>
                 <RowDefinition Height="50"></RowDefinition>
             </Grid.RowDefinitions>
-            <DockPanel>
+            <DockPanel x:Name="TabItemChangeButton">
                 <DockPanel.Resources>
                     <Style TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
-                        <Setter Property="Background" Value="#FF57C357"></Setter>
-                        <Setter Property="pu:ButtonHelper.HoverBrush" Value="#FF3A853A"></Setter>
-                        <Setter Property="Foreground" Value="White"></Setter>
                         <Setter Property="FontSize" Value="22"></Setter>
                         <Setter Property="FontFamily" Value="SimHei"></Setter>
                         <Setter Property="VerticalAlignment" Value="Top"></Setter>
@@ -88,8 +114,8 @@
                         <!--<Setter Property="FontFamily" Value="{StaticResource FontAwesome}"></Setter>-->
                     </Style>
                 </DockPanel.Resources>
-                <Button Tag="0" PreviewMouseDown="TabItemButton_PreviewMouseDown" Content="生存服[图片占位]"></Button>
-                <Button Tag="1" PreviewMouseDown="TabItemButton_PreviewMouseDown" Content="模组服[图片占位]"></Button>
+                <Button Tag="0" PreviewMouseDown="TabItemButton_PreviewMouseDown" Content="生存服"></Button>
+                <Button Tag="1" PreviewMouseDown="TabItemButton_PreviewMouseDown" Content="模组服"></Button>
             </DockPanel>
             <Canvas Grid.Row="1">
                 <Canvas.Resources>
@@ -99,15 +125,15 @@
                         <Setter Property="Width" Value="50"></Setter>
                         <Setter Property="Background" Value="{x:Null}"></Setter>
                         <Setter Property="FontSize" Value="32"></Setter>
-                        <Setter Property="FontFamily" Value="/Panuon.UI.Silver;component/Resources/#fontawesome"></Setter>
+                        <Setter Property="FontFamily" Value="{DynamicResource IconFontAwesome}"></Setter>
                     </Style>
                 </Canvas.Resources>
-                <Button Content="&#xf013;"></Button>
-                <Button Content="&#xf0f4;" Canvas.Left="50"></Button>
+                <Button Content="&#xf013;" PreviewMouseDown="Button_PreviewMouseDown" Tag="Setting"></Button>
+                <Button Content="&#xf0f4;" PreviewMouseDown="Button_PreviewMouseDown" Tag="ACupOfJava" Canvas.Left="50"></Button>
             </Canvas>
         </Grid>
         <Rectangle HorizontalAlignment="Left" Width="2" Fill="#3FFFFFFF" Grid.Column="1" Grid.Row="1"/>
-        <TabControl Name="ServerPage" Grid.Column="1" Grid.Row="1" Padding="0">
+        <TabControl Name="ServerPage" Grid.Column="1" Grid.Row="1" Padding="0" Margin="0,0,0,75">
             <TabControl.Resources>
                 <Style TargetType="TabControl">
                     <Setter Property="pu:TabControlHelper.ItemHeight" Value="0"></Setter>
@@ -119,89 +145,67 @@
                     <Setter Property="Background" Value="{x:Null}"></Setter>
                 </Style>
             </TabControl.Resources>
-            <TabItem Header="TabItem">
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition/>
-                        <RowDefinition Height="75"/>
-                    </Grid.RowDefinitions>
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="50"/>
-                            <ColumnDefinition/>
-                        </Grid.ColumnDefinitions>
-                        <DockPanel>
-                            <DockPanel.Resources>
-                                <Style TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
-                                    <Setter Property="Background" Value="{x:Null}"></Setter>
-                                    <Setter Property="BorderBrush" Value="{x:Null}"></Setter>
-                                    <Setter Property="Foreground" Value="White"></Setter>
-                                    <Setter Property="FontSize" Value="22"></Setter>
-                                    <Setter Property="FontFamily" Value="SimHei"></Setter>
-                                    <Setter Property="VerticalAlignment" Value="Top"></Setter>
-                                    <Setter Property="MinHeight" Value="40"></Setter>
-                                    <Setter Property="DockPanel.Dock" Value="Top"></Setter>
-                                    <Setter Property="pu:ButtonHelper.CornerRadius" Value="7"></Setter>
-                                    <Setter Property="Margin" Value="2"></Setter>
-                                    <Setter Property="FontFamily" Value="/Panuon.UI.Silver;component/Resources/#fontawesome"></Setter>
-                                    <Setter Property="Margin" Value="5,2.5"></Setter>
-                                </Style>
-                            </DockPanel.Resources>
-                            <Button Content="&#xf2bb;"></Button>
-                            <Button Content="&#xf093;"></Button>
-                            <Button Content="&#xf041;"></Button>
-                            <Button Content="&#xf1eb;"></Button>
-                            <Button Content="&#xf0e0;"></Button>
-                        </DockPanel>
-                        <!--<Rectangle HorizontalAlignment="Right" Width="2" Fill="#3FFFFFFF"/>-->
-                        <Rectangle Height="2" Fill="#3FFFFFFF" VerticalAlignment="Bottom"/>
-                        <Grid Grid.Column="1" Background="White">
-                            <cef:ChromiumWebBrowser Address="chobitslive.live:3080/minecraft/updater/1st/"></cef:ChromiumWebBrowser>
-                            <Grid VerticalAlignment="Bottom" HorizontalAlignment="Right" Height="200" Width="350" Margin="0,0,50,50">
-                                <GroupBox pu:GroupBoxHelper.ShadowColor="White" Background="#7FFFFFFF" Header=""
-                                      pu:GroupBoxHelper.CornerRadius="15" BorderBrush="{x:Null}" pu:GroupBoxHelper.HeaderPadding="25,10,25,0">
-                                    <GroupBox.Resources>
-                                        <Style TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
-                                            <Setter Property="FontFamily" Value="/Panuon.UI.Silver;component/Resources/#fontawesome"></Setter>
-                                            <Setter Property="MinWidth" Value="30"></Setter>
-                                        </Style>
-                                    </GroupBox.Resources>
-                                    <pu:GroupBoxHelper.ExtendControl>
-                                        <Button Content="&#xf013;"></Button>
-                                    </pu:GroupBoxHelper.ExtendControl>
-                                    <Canvas>
-                                        <TextBox Width="256" Canvas.Left="48" Canvas.Top="10" Height="30" pu:TextBoxHelper.CornerRadius="10"
-                                             pu:TextBoxHelper.FocusedShadowColor="#FF57C357" pu:TextBoxHelper.Watermark="账号"
-                                             ></TextBox>
-                                        <PasswordBox Width="256" Height="30" Canvas.Left="48" Canvas.Top="56" pu:PasswordBoxHelper.CornerRadius="10"
-                                                 pu:PasswordBoxHelper.FocusedShadowColor="#FF57C357" pu:PasswordBoxHelper.Watermark="密码"
-                                                 pu:PasswordBoxHelper.IsShowPwdButtonVisible="True"
-                                                 ></PasswordBox>
-                                        <CheckBox Content="正版登录" IsChecked="True" Canvas.Left="48" Canvas.Top="105" Height="27" Width="130"
-                                              pu:CheckBoxHelper.CheckedBackground ="#FF57C357" pu:CheckBoxHelper.CheckBoxStyle="Switch"
-                                              pu:CheckBoxHelper.BoxWidth="40"
-                                              ></CheckBox>
-                                        <Button Content="登录" Canvas.Left="217" Canvas.Top="105" Width="87" Height="27"/>
-                                    </Canvas>
-                                </GroupBox>
-                            </Grid>
+            <TabItem Header="生存服">
+                <Grid Margin="0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="50"/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+                    <DockPanel>
+                        <DockPanel.Resources>
+                            <Style TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+                                <Setter Property="Background" Value="{x:Null}"></Setter>
+                                <Setter Property="BorderBrush" Value="{x:Null}"></Setter>
+                                <Setter Property="FontSize" Value="22"></Setter>
+                                <Setter Property="FontFamily" Value="SimHei"></Setter>
+                                <Setter Property="VerticalAlignment" Value="Top"></Setter>
+                                <Setter Property="MinHeight" Value="40"></Setter>
+                                <Setter Property="DockPanel.Dock" Value="Top"></Setter>
+                                <Setter Property="pu:ButtonHelper.CornerRadius" Value="7"></Setter>
+                                <Setter Property="Margin" Value="2"></Setter>
+                                <Setter Property="FontFamily" Value="{DynamicResource IconFontAwesome}"></Setter>
+                                <Setter Property="Margin" Value="5,2.5"></Setter>
+                            </Style>
+                        </DockPanel.Resources>
+                        <Button Content="&#xf2bb;"></Button>
+                        <Button Content="&#xf093;"></Button>
+                        <Button Content="&#xf041;"></Button>
+                        <Button Content="&#xf1eb;"></Button>
+                        <Button Content="&#xf0e0;"></Button>
+                    </DockPanel>
+                    <!--<Rectangle HorizontalAlignment="Right" Width="2" Fill="#3FFFFFFF"/>-->
+                    <Rectangle Height="2" Fill="#3FFFFFFF" VerticalAlignment="Bottom"/>
+                    <Grid Grid.Column="1" Margin="0,-3,-1,0">
+                        <!---->
+                        <cef:ChromiumWebBrowser Address="chobitslive.live:3080/minecraft/updater/1st/"></cef:ChromiumWebBrowser>
+                        <Grid VerticalAlignment="Bottom" HorizontalAlignment="Right" Height="200" Width="350" Margin="0,0,50,50">
+                            <us:LoginPanel Visibility="Hidden"></us:LoginPanel>
                         </Grid>
-                    </Grid>
-                    <Grid Grid.Row="1">
-                        <ProgressBar Margin="23,34,218,15" pu:ProgressBarHelper.IsPercentVisible="True" pu:ProgressBarHelper.CornerRadius="13"
-                                     Value="10" BorderBrush="{x:Null}" Foreground="#FF57C357"/>
-                        <Button 
-                            HorizontalAlignment="Right" Width="200" 
-                            pu:ButtonHelper.CornerRadius="10" Background="#FF57C357" 
-                            Foreground="White" Content="开始游戏" FontSize="28"
-                            FontFamily="SimHei" Margin="5"
-                            ></Button>
                     </Grid>
                 </Grid>
             </TabItem>
-            <TabItem Header="TabItem">
-                <Grid/>
+            <TabItem Header="模组服">
+                <Grid>
+                    <cef:ChromiumWebBrowser Address="chobitslive.live:3080/minecraft/updater/3rd/"></cef:ChromiumWebBrowser>
+                </Grid>
             </TabItem>
         </TabControl>
+        <Grid Grid.Column="1" Grid.Row="1" VerticalAlignment="Bottom" Height="75">
+            <Label Name="processInfo" VerticalAlignment="Top" HorizontalAlignment="Left" Height="24" Width="690" Margin="23,5,0,0"/>
+            <ProgressBar Name="processing" Margin="23,34,268,15" pu:ProgressBarHelper.IsPercentVisible="False" pu:ProgressBarHelper.CornerRadius="13"
+                                     Value="1" BorderBrush="{x:Null}" Foreground="{DynamicResource ThemeForeColor}" Maximum="1" 
+                                     />
+            <Label Name="speedLable" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="23,34,0,0" Height="26" Content="0b/s" Foreground="White" Padding="10,5,5,5"/>
+            <Button 
+                            HorizontalAlignment="Right" Width="250" pu:ButtonHelper.IsWaiting="False" Name="LaunchButton"
+                            pu:ButtonHelper.CornerRadius="10" Content="开始游戏" FontSize="28" PreviewMouseDown="LaunchButton_PreviewMouseDown"
+                            FontFamily="SimHei" Margin="5" pu:ButtonHelper.WaitingContent=" 正在更新"
+                            />
+            <CheckBox Content="默认服务器" HorizontalAlignment="Right" Margin="0,5,268,0" VerticalAlignment="Top" 
+                                  Height="24" Width="119" Foreground="White" Name="isNormalServer" PreviewMouseDown="isNormalServer_MouseDown"
+                                  pu:CheckBoxHelper.BoxWidth="40" IsChecked="True"
+                                  pu:CheckBoxHelper.CheckedBackground="{DynamicResource ThemeForeColor}"
+                                  />
+        </Grid>
     </Grid>
 </Window>
